@@ -1,13 +1,16 @@
+$bg: #282828;
+
 Screen {
     layout: horizontal;
     overflow-x: auto;
+    background: $bg;
 }
 
 EditScreen {
     align: center middle;
     overflow-x: hidden;
     layout: vertical;
-    background: #282828 50%;
+    background: #000000 25%;
 }
 
 .column {
@@ -28,4 +31,22 @@ EditScreen {
     content-align: center top; 
     color: #458588;
     text-style: bold underline;
+}
+
+ListItem{
+    border: solid #ebdbb2 100%;
+    padding: 1 1 1 1;
+    background: $bg;
+}
+
+ListView > ListItem.--highlight {
+      background: $bg;
+  }
+
+ListView:focus > ListItem.--highlight {
+      background: #458588;
+  }
+
+Label:focus{
+    background: #458588;
 }
