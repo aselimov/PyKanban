@@ -55,7 +55,7 @@ class Board:
                 # Now add the task to the list structures
                 elif item_type == "-":
                     # The tasks are a list of [col index, task name]
-                    self.tasks[-1].append(" "+' '.join(line.split(' ')[1:]))
+                    self.tasks[-1].append(' '.join(line.split(' ')[1:]).strip())
 
 
     def write_md(self):
@@ -64,7 +64,7 @@ class Board:
             for i,col in enumerate(self.columns):
                 f.write('## {}\n\n'.format(col))
                 for task in self.tasks[i]:
-                    f.write('- {}\n'.format(task[1][1:]))
+                    f.write('- {}\n'.format(task))
                 f.write('\n')
                 
 
@@ -107,3 +107,12 @@ class Board:
     def get_task(self, icol, itask):
         """ Return a task based on column and task index"""
         return self.tasks[icol][itask]
+
+    def update_task( self, icol, itask, text):
+        """ Update the task based on text """
+        self.tasks[icol][itask] = text
+
+    def add_task( self, icol, text):
+        """Add a task to icol"""
+        self.tasks[icol].append(text)
+

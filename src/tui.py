@@ -1,6 +1,7 @@
 from textual.app import App, ComposeResult
-from textual.widgets import Static, Label, ListItem, ListView
+from textual.widgets import Static, Label, ListItem, ListView, TextArea, Input
 from textual.containers import Horizontal, Vertical
+from textual.screen import Screen
 from textual.binding import Binding
 from board import Board
 
@@ -15,16 +16,52 @@ class TaskList(ListView):
         Binding("j", "cursor_down", "Cursor Down", show=False, priority=True),
     ]
 
+class EditScreen(Screen):
+    """
+        This is a screen used to edit the name of a task
+    """
+    CSS="""
+        Label{
+            width:50%;
+        }
+        Input{
+            width:50%;
+        }
+    """
+    BINDINGS = [
+        Binding('enter', 'save', 'Save Changes', priority=True)
+    ]
+    def __init__(self,text):
+        """
+        Initialize the screen
+        """
+        super().__init__()
+        self.text = text
+
+    def compose(self):
+        """
+        Compose the widgets on the screen, this screen doesn't need dynamic layout changes
+        """
+        yield Label('Task Name:')
+        yield Input(value=self.text)
+
+
+    def action_save(self):
+        query = self.query(selector=Input)
+        self.dismiss(query.nodes[0].value)
+
 
 class KanbanForm(App):
     CSS_PATH = 'layout.tcss'
     BINDINGS = [
-        Binding("l", "fnext", "Focus Next", show=False, priority=True),
-        Binding("h", "fprev", "Focus Prev", show=False, priority=True),
-        Binding("L", "move_up", "Focus Next", show=False, priority=True),
-        Binding("H", "move_down", "Focus Prev", show=False, priority=True),
-        Binding('q', 'exit', "Exit", priority=True, show=False) 
-    ]
+        Binding("l", "fnext", "Focus Next", show=False, ),
+        Binding("a", "new_task", "Add New Task", show=False, ),
+        Binding("h", "fprev", "Focus Prev", show=False, ),
+        Binding("L", "move_up", "Focus Next", show=False),
+        Binding("H", "move_down", "Focus Prev", show=False),
+        Binding("e", "edit_task", "Edit Task", show=False,),
+        Binding('q', 'exit', "Exit")
+        ]
 
     def compose(self):
         """
@@ -82,8 +119,17 @@ class KanbanForm(App):
             self.action_fprev()
             self.focused.action_cursor_down()
 
+    def action_edit_task(self):
+        icol, itask = self.get_col_task()
+        task = self.board.get_task(icol, itask)
+        self.push_screen(EditScreen(task), self.update_task)
+    
+    def action_new_task(self):
+        self.push_screen(EditScreen(""), self.new_task)
+
     def action_exit(self):
         """ Exit the application """
+        self.board.write_md()
         self.exit()
 
     def get_col_task(self):
@@ -106,8 +152,24 @@ class KanbanForm(App):
                 task_index = i
 
         return col_index, task_index
-        
+    
+    def update_task(self, text):
+        """ This function gets the text inputted in the edit screen and updates the underlying 
+            task and the board class
+            
+        """
+        icol, itask = self.get_col_task()
+        self.focused.highlighted_child.children[0].update(text)
+        self.board.update_task(icol, itask, text)
 
+    def new_task(self, text):
+        """ This function adds a new task to our board
+        """
+        icol,_ = self.get_col_task()
+        self.focused.mount(ListItem(Label(text)))
+        self.board.add_task(icol, text)
+        self.focused.highlighted_child
+    
 #    def on_key(self):
 #        with open('log','a') as f:
 #            f.write("{}".format(self.children[0].focus_next))

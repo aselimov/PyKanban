@@ -3,6 +3,13 @@ Screen {
     overflow-x: auto;
 }
 
+EditScreen {
+    align: center middle;
+    overflow-x: hidden;
+    layout: vertical;
+    background: #282828 50%;
+}
+
 .column {
     width: 1fr;
     height: 100%;
