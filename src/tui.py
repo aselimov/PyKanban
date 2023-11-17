@@ -154,14 +154,26 @@ class KanbanForm(App):
                 else:
                     col_class = 'last-column'
                 with Vertical(classes=col_class):
-                    yield Static(col, classes='header')
+                    if i == 0:
+                        yield Static(col, classes='header-focused')
+                    else:
+                        yield Static(col, classes='header')
                     yield TaskList(
                         *[ListItem(Label(task.summary)) for task in self.board.get_tasks()[i]])
 
-        # Now make all TaskLists except the first have no highlights
     def action_fnext(self):
         """ Focus next column"""
+        query = self.query(selector=Static)
+        query = [node for node in query.nodes if str(node) == 'Static()']
+        icol, _ = self.get_col_task()
+        query[icol].classes="header"
         self.children[0].focus_next()
+        try:
+            query[icol+1].classes="header-focused"
+        except IndexError:
+            query[0].classes="header-focused"
+
+        
 
     def action_move_up(self):
         icol, itask = self.get_col_task()
@@ -178,7 +190,15 @@ class KanbanForm(App):
         
     def action_fprev(self):
         """ Focus previous column """
+        query = self.query(selector=Static)
+        query = [node for node in query.nodes if str(node) == 'Static()']
+        icol, _ = self.get_col_task()
+        query[icol].classes="header"
         self.children[0].focus_previous()
+        try:
+            query[icol-1].classes="header-focused"
+        except IndexError:
+            query[-1].classes="header-focused"
 
     def action_move_down(self):
         icol, itask = self.get_col_task()
@@ -217,7 +237,7 @@ class KanbanForm(App):
 
     def action_exit(self):
         """ Exit the application """
-        self.board.write_md()
+        self.board.write_yaml(file='.board.yaml')
         self.exit()
 
     def get_col_task(self):
@@ -233,8 +253,9 @@ class KanbanForm(App):
             if focused_col == child:
                 col_index = i
 
-        # Now get the indext of the item in the list
+        # Now get the index of the item in the list
         to_move = focused_col.highlighted_child
+        task_index = None
         for i, child in enumerate(focused_col.children):
             if to_move == child: 
                 task_index = i

@@ -34,7 +34,7 @@ class Board:
             self.read_yaml(file)
 
 
-    def read_yaml(self, file='.board.yaml'):
+    def read_yaml(self, file):
         """ Read the yaml file in and set up the data 
 
         Arguments:
@@ -52,6 +52,24 @@ class Board:
             self.tasks[self.columns.index(task['column'])].append(
                     Task(task['summary'], task['score'], task['description']))
 
+    def write_yaml(self, file):
+        """ Write the yaml file 
+
+        Arguments:
+        file - yaml file to write to
+        """
+
+        # Set up data to write out 
+        data = dict()
+        data['columns'] = self.columns
+        data['tasks'] = list()
+        for col,task_list in zip(self.columns, self.tasks):
+            for task in task_list:
+                data['tasks'].append({'column':col, 'summary':task.summary, 'score':task.score, 
+                                      'description':task.description})
+
+        with open(file, 'w') as f:
+            yaml.dump(data, f)
                 
 
     def move_task(self, col_index, task_index, direction):
