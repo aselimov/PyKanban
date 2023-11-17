@@ -1,5 +1,20 @@
 """ This module contains classes and functions to contain the kanban board information """
 
+import numpy as np
+import yaml
+
+class Task:
+    """ This class represents each task, 
+    """
+    def __init__(self, summary, score, description):
+        """ Initialize the task class
+        """
+        # Each task has the following properties
+        self.summary = summary # Summary of the task
+        self.score = score # Score for ticket
+        self.description = description # Description of ticket
+
+
 class Board:
     def __init__(self, file = None):
         """ Initialize the Board class, this class has three important class variables. 
@@ -13,59 +28,30 @@ class Board:
         self.columns = list()
         self.tasks = list()
 
-        self.file = ''
         self.file = file
 
         if file:
-            self.parse_md(file)
+            self.read_yaml(file)
 
 
-    def parse_md(self, file):
-        """ Upon starting the code we need to parse the markdown file which contains our board 
-        information
+    def read_yaml(self, file='.board.yaml'):
+        """ Read the yaml file in and set up the data 
 
-        Arguments: 
-        file - the path to the markdown file containing the board information
+        Arguments:
+        file - yaml file to read in
         """
-        
-        with open(file,'r') as f:
-            for line in f:
-                item_type = line.split(' ')[0]
-                # Assign sprint 
-                if item_type == '#':
-                    # If sprint has already been defined we should exit the loop
-                    if self.sprint:
-                        break
 
-                    # Otherwise assign it
-                    try:
-                        self.sprint = ' '.join(line.split(' ')[1:])
+        # Read in the data
+        with open(file, 'r') as f:
+            data = yaml.safe_load(f)
 
-                    except IndexError:
-                        # If a sprint title is not defined we default it to ' ' which we process 
-                        # later
-                        self.sprint=' '
-                
-                # Define a new column and add a list to the tasks variable that corresponds to that
-                # column
-                elif item_type == "##":
-                    self.columns.append(' '.join(line.split(' ')[1:]))
-                    self.tasks.append(list())
+        # Assign the data to board variables
+        self.columns = data['columns']
+        self.tasks = [[] for col in self.columns]
+        for task in data['tasks']:
+            self.tasks[self.columns.index(task['column'])].append(
+                    Task(task['summary'], task['score'], task['description']))
 
-                # Now add the task to the list structures
-                elif item_type == "-":
-                    # The tasks are a list of [col index, task name]
-                    self.tasks[-1].append(' '.join(line.split(' ')[1:]).strip())
-
-
-    def write_md(self):
-        with open(self.file, 'w') as f:
-            f.write('#\n\n')
-            for i,col in enumerate(self.columns):
-                f.write('## {}\n\n'.format(col))
-                for task in self.tasks[i]:
-                    f.write('- {}\n'.format(task))
-                f.write('\n')
                 
 
     def move_task(self, col_index, task_index, direction):
@@ -108,11 +94,11 @@ class Board:
         """ Return a task based on column and task index"""
         return self.tasks[icol][itask]
 
-    def update_task( self, icol, itask, text):
+    def update_task( self, icol, itask, task):
         """ Update the task based on text """
-        self.tasks[icol][itask] = text
+        self.tasks[icol][itask] = task
 
-    def add_task( self, icol, text):
+    def add_task( self, icol, task):
         """Add a task to icol"""
-        self.tasks[icol].append(text)
+        self.tasks[icol].append(task)
 

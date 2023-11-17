@@ -6,13 +6,19 @@ Screen {
     background: $bg;
 }
 
-EditScreen {
+EditTaskScreen {
     align: center middle;
     overflow-x: hidden;
     layout: vertical;
     background: #000000 25%;
 }
 
+EditColScreen {
+    align: center middle;
+    overflow-x: hidden;
+    layout: vertical;
+    background: #000000 25%;
+}
 .column {
     width: 1fr;
     height: 100%;
