@@ -48,6 +48,7 @@ class EditTaskScreen(Screen):
     """
     BINDINGS = [
         Binding('ctrl+s', 'save', 'Save Changes', priority=True),
+        Binding('escape', 'exit', 'Exit Without Changes', priority=True),
     ]
     def __init__(self,text):
         """
@@ -81,6 +82,9 @@ class EditTaskScreen(Screen):
         query = self.query(selector=TextArea)
         self.text.description = query.nodes[0].text
         self.dismiss(self.text)
+
+    def action_exit(self):
+        self.dismiss(None)
 
 class EditColScreen(Screen):
     """
@@ -267,17 +271,19 @@ class KanbanForm(App):
             task and the board class
             
         """
-        icol, itask = self.get_col_task()
-        self.focused.highlighted_child.children[0].update(task.summary)
-        self.board.update_task(icol, itask, task)
+        if task:
+            icol, itask = self.get_col_task()
+            self.focused.highlighted_child.children[0].update(task.summary)
+            self.board.update_task(icol, itask, task)
 
     def new_task(self, task):
         """ This function adds a new task to our board
         """
-        icol,_ = self.get_col_task()
-        self.focused.mount(ListItem(Label(task.summary)))
-        self.board.add_task(icol, task)
-        self.focused.highlighted_child
+        if task:
+            icol,_ = self.get_col_task()
+            self.focused.mount(ListItem(Label(task.summary)))
+            self.board.add_task(icol, task)
+            self.focused.highlighted_child
     
 #    def on_key(self):
 #        with open('log','a') as f:
