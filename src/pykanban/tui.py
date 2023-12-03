@@ -130,13 +130,14 @@ class EditColScreen(Screen):
 class KanbanForm(App):
     CSS_PATH = 'layout.tcss'
     BINDINGS = [
-        Binding("l", "fnext", "Focus Next", show=False, ),
         Binding("a", "new_task", "Add New Task", show=False, ),
+        Binding("l", "fnext", "Focus Next", show=False, ),
         Binding("h", "fprev", "Focus Prev", show=False, ),
         Binding("L", "move_up", "Focus Next", show=False),
         Binding("H", "move_down", "Focus Prev", show=False),
         Binding("e", "edit_task", "Edit Task", show=False,),
         Binding("r", "edit_column", "Edit Column Name", show=False,),
+        Binding("d", "delete_task", "Delete Task", show=False,),
         Binding('q', 'exit', "Exit")
         ]
 
@@ -229,6 +230,11 @@ class KanbanForm(App):
         text = self.board.get_columns()[icol]
         self.push_screen(EditColScreen(text), self.update_col)
 
+    def action_delete_task(self):
+        icol, itask = self.get_col_task()
+        self.focused.highlighted_child.remove()
+        self.board.del_task(icol,itask)
+
     def update_col(self, text):
         """ Update the column
         """
@@ -283,7 +289,7 @@ class KanbanForm(App):
             icol,_ = self.get_col_task()
             self.focused.mount(ListItem(Label(task.summary)))
             self.board.add_task(icol, task)
-            self.focused.highlighted_child
+            self.focused.action_cursor_down()
     
 #    def on_key(self):
 #        with open('log','a') as f:

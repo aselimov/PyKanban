@@ -120,3 +120,6 @@ class Board:
         """Add a task to icol"""
         self.tasks[icol].append(task)
 
+    def del_task(self, icol, itask):
+        del self.tasks[icol][itask]
+

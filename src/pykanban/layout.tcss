@@ -37,12 +37,13 @@ EditColScreen {
     content-align: center top; 
     color: #ebdbb9;
     text-style: underline;
+    padding: 1;
 }
 .header-focused {
     content-align: center top; 
     color: #458588;
     text-style:  underline;
-
+    padding: 1;
 }
 
 ListItem{
